@@ -4,7 +4,7 @@ import { catchError, Observable, tap, map, throwError } from 'rxjs';
 
 import { type User } from '../models/user.model';
 
-@Injectable({ providedIn: 'root' }) // todo: limit to BlogApiService & Login?
+@Injectable({ providedIn: 'root' })
 export class UserApiService {
   private httpClient = inject(HttpClient);
   private user = signal<User | undefined>(undefined);
@@ -48,17 +48,22 @@ export class UserApiService {
             this.user.set(respData.user);
             localStorage.setItem('blog_user', JSON.stringify(respData.user));
           },
+          complete: () => {
+            this.fetchAuthors();
+          },
         }),
       )
       .pipe(
         catchError((error) => {
           console.log(error);
-          return throwError(() => new Error('Sign-on error!'));
+          return throwError(() => new Error('Sign-on error!', error));
         }),
       );
   }
 
-  fetchAuthors() {
+  signout() {}
+
+  private fetchAuthors() {
     const token = this.verifyToken();
     if (token) {
       return (
