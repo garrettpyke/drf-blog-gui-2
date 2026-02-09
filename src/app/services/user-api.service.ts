@@ -29,9 +29,6 @@ export class UserApiService {
     //   body: 'Invalid token',
     //   status: HttpStatusCode.Unauthorized,
     // });
-    // return new Observable((observer) => {
-    //   observer.error(httpResponse.body);
-    // });
   }
 
   signIn(userId: string, password: string) {
@@ -47,9 +44,8 @@ export class UserApiService {
             this.user.set(user);
             localStorage.setItem('blog_user', JSON.stringify(user));
           },
-          complete: () => {
-            // this.fetchAuthors(); //* no subscription
-          },
+          // complete: () => {
+          // },
         }),
       )
       .pipe(
@@ -101,7 +97,6 @@ export class UserApiService {
             tap({
               next: ({ users }) => {
                 this.users.set(users);
-                console.log(this.users());
               },
             }),
           )

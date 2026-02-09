@@ -1,5 +1,5 @@
-import { inject, Injectable, signal } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
+import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 import { catchError, Observable, tap, map, throwError } from 'rxjs';
 
 import { type User } from '../models/user.model';
@@ -14,8 +14,40 @@ export class BlogApiService {
   private user = signal<User>(this.userApiService.currentUser()!);
   private blogs = signal<Blog[]>([]);
   private categories = signal<Category[]>([]);
+  private destroyRef = inject(DestroyRef);
 
   loadedBlogs = this.blogs.asReadonly();
+  loadedCategories = this.categories.asReadonly();
+  loadedAuthors = computed(
+    () => this.userApiService.loadedUsers(),
+    // this.userApiService.loadedUsers().map((author) => [author.id, author.email]), //* typescript tuple
+  );
+
+  // todo: test category loading in constructor
+  constructor() {
+    const categorySubscription = this.fetchCategories().subscribe({
+      error: (error: Error) => {
+        console.error('Error loading categories', error);
+      },
+      complete: () => {
+        console.log('Category loading completed');
+        console.log(this.loadedCategories());
+      },
+    });
+    this.destroyRef.onDestroy(() => categorySubscription.unsubscribe());
+
+    const authorSubscription = this.userApiService.fetchAuthors().subscribe({
+      error: (error: Error) => {
+        console.error('Error loading authors:', error);
+      },
+      complete: () => {
+        console.log('Author loading completed');
+        // console.log(this.userApiService.loadedUsers());
+        console.log(this.loadedAuthors());
+      },
+    });
+    this.destroyRef.onDestroy(() => authorSubscription.unsubscribe());
+  }
 
   private verifyToken(): string {
     const { token } = this.user()!;
@@ -25,7 +57,7 @@ export class BlogApiService {
     return '';
   }
 
-  private fetchBlogs(url: string, errMessage: string): Observable<any> {
+  fetchBlogs(url: string, errMessage: string): Observable<any> {
     const token = this.verifyToken();
 
     if (token) {
@@ -45,6 +77,31 @@ export class BlogApiService {
           catchError((error) => {
             console.log(error);
             return throwError(() => new Error(error.message));
+          }),
+        );
+    }
+    return new Observable((observer) => {
+      observer.error('error fetching authors');
+    });
+  }
+
+  fetchCategories() {
+    const token = this.verifyToken();
+
+    if (token) {
+      return this.httpClient
+        .get<{ categories: Category[] }>('http://localhost:8000/api/categories/', {
+          headers: this.userApiService.buildHttpHeaders(token),
+        })
+        .pipe(
+          map((respData) => {
+            this.categories.set(respData.categories);
+          }),
+        )
+        .pipe(
+          catchError((error) => {
+            console.log(error);
+            return throwError(() => new Error(`Error fetching categories: ${error.message}`));
           }),
         );
     }

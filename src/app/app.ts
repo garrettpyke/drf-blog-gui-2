@@ -5,10 +5,11 @@ import { type User } from './models/user.model';
 import { Header } from './header/header';
 import { Login } from './login/login';
 import { UserApiService } from './services/user-api.service';
+import { Blogs } from './blogs/blogs';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Header, Login],
+  imports: [RouterOutlet, Header, Login, Blogs],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
