@@ -4,6 +4,7 @@
   @if (user()?.id) {
     <!-- <router-outlet /> -->
     <h3>Signed in...</h3>
+    <button (click)="onSignOut()">Sign out</button>
   } @else {
     <app-login (signIn)="onSignIn($event)" />
   }

@@ -42,11 +42,10 @@ export class UserApiService {
       })
       .pipe(
         tap({
-          next: (respData) => {
-            console.log(respData);
-            console.log(respData.user);
-            this.user.set(respData.user);
-            localStorage.setItem('blog_user', JSON.stringify(respData.user));
+          next: ({ user }) => {
+            console.log(user);
+            this.user.set(user);
+            localStorage.setItem('blog_user', JSON.stringify(user));
           },
           complete: () => {
             this.fetchAuthors();
@@ -61,7 +60,33 @@ export class UserApiService {
       );
   }
 
-  signout() {}
+  signout() {
+    const token = this.verifyToken();
+    if (token) {
+      return this.httpClient
+        .delete<HttpResponse<any>>('http://localhost:8000/api/sign-out/', {
+          headers: this.buildHttpHeaders(token),
+        })
+        .pipe(
+          map((response) => {
+            // console.log(response); // null
+            console.log('BlogApiService: Clearing user data after logout.');
+            this.user.set(undefined);
+            localStorage.removeItem('blog_user');
+            return response;
+          }),
+        )
+        .pipe(
+          catchError((error) => {
+            console.log(error);
+            return throwError(() => new Error('Error during logout.'));
+          }),
+        );
+    }
+    return new Observable((observer) => {
+      observer.error('error fetching authors');
+    });
+  }
 
   private fetchAuthors() {
     const token = this.verifyToken();
