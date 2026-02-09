@@ -48,7 +48,7 @@ export class UserApiService {
             localStorage.setItem('blog_user', JSON.stringify(user));
           },
           complete: () => {
-            this.fetchAuthors();
+            // this.fetchAuthors(); //* no subscription
           },
         }),
       )
@@ -88,18 +88,21 @@ export class UserApiService {
     });
   }
 
-  private fetchAuthors() {
+  fetchAuthors() {
     const token = this.verifyToken();
     if (token) {
       return (
         this.httpClient
-          //* Correct data typing here is important
+          // correct data typing here is important
           .get<{ users: User[] }>(`http://localhost:8000/api/users/`, {
             headers: this.buildHttpHeaders(token),
           })
           .pipe(
-            map((respData) => {
-              this.users.set(respData.users);
+            tap({
+              next: ({ users }) => {
+                this.users.set(users);
+                console.log(this.users());
+              },
             }),
           )
           .pipe(

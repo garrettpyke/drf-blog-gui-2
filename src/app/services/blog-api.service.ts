@@ -4,6 +4,7 @@ import { catchError, Observable, tap, map, throwError } from 'rxjs';
 
 import { type User } from '../models/user.model';
 import { type Blog } from '../models/blog.model';
+import { type Category } from '../models/category.model';
 import { UserApiService } from './user-api.service';
 
 @Injectable({ providedIn: 'root' }) // todo: limit to BlogApiService & Login?
@@ -12,6 +13,7 @@ export class BlogApiService {
   private userApiService = inject(UserApiService);
   private user = signal<User>(this.userApiService.currentUser()!);
   private blogs = signal<Blog[]>([]);
+  private categories = signal<Category[]>([]);
 
   loadedBlogs = this.blogs.asReadonly();
 
