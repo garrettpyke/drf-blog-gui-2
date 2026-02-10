@@ -1,5 +1,6 @@
 import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core';
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 import { catchError, Observable, tap, map, throwError } from 'rxjs';
 
 import { type User } from '../models/user.model';
@@ -7,7 +8,7 @@ import { type Blog } from '../models/blog.model';
 import { type Category } from '../models/category.model';
 import { UserApiService } from './user-api.service';
 
-@Injectable({ providedIn: 'root' }) // todo: limit to BlogApiService & Login?
+@Injectable({ providedIn: 'root' })
 export class BlogApiService {
   private httpClient = inject(HttpClient);
   private userApiService = inject(UserApiService);
@@ -15,6 +16,7 @@ export class BlogApiService {
   private blogs = signal<Blog[]>([]);
   private categories = signal<Category[]>([]);
   private destroyRef = inject(DestroyRef);
+  private apiUrl = environment.apiUrl;
 
   loadedBlogs = this.blogs.asReadonly();
   loadedCategories = this.categories.asReadonly();
@@ -23,9 +25,8 @@ export class BlogApiService {
     // this.userApiService.loadedUsers().map((author) => [author.id, author.email]), //* typescript tuple
   );
 
-  // todo: test category loading in constructor
   constructor() {
-    const categorySubscription = this.fetchCategories().subscribe({
+    const categorySubscription = this.loadCategories().subscribe({
       error: (error: Error) => {
         console.error('Error loading categories', error);
       },
@@ -36,29 +37,32 @@ export class BlogApiService {
     });
     this.destroyRef.onDestroy(() => categorySubscription.unsubscribe());
 
-    const authorSubscription = this.userApiService.fetchAuthors().subscribe({
+    const authorSubscription = this.userApiService.fetchUsers().subscribe({
       error: (error: Error) => {
         console.error('Error loading authors:', error);
       },
       complete: () => {
         console.log('Author loading completed');
-        // console.log(this.userApiService.loadedUsers());
         console.log(this.loadedAuthors());
       },
     });
     this.destroyRef.onDestroy(() => authorSubscription.unsubscribe());
+
+    const apiUrl = environment.apiUrl;
+    console.log(apiUrl);
   }
 
   private verifyToken(): string {
-    const { token } = this.user()!;
+    const { token } = this.userApiService.currentUser()!;
     if (token) {
       return token;
     }
     return '';
   }
 
-  fetchBlogs(url: string, errMessage: string): Observable<any> {
+  private fetchBlogs(url: string, errMessage: string): Observable<any> {
     const token = this.verifyToken();
+    // console.log
 
     if (token) {
       return this.httpClient
@@ -67,9 +71,8 @@ export class BlogApiService {
         })
         .pipe(
           tap({
-            next: (respData) => {
-              this.blogs.set(respData[0]);
-              console.log(this.blogs());
+            next: ([blogs, user]) => {
+              (this.blogs.set(blogs), console.log(user));
             },
           }),
         )
@@ -81,11 +84,11 @@ export class BlogApiService {
         );
     }
     return new Observable((observer) => {
-      observer.error('error fetching authors');
+      observer.error(errMessage);
     });
   }
 
-  fetchCategories() {
+  private fetchCategories(url: string, errMessage: string) {
     const token = this.verifyToken();
 
     if (token) {
@@ -94,8 +97,8 @@ export class BlogApiService {
           headers: this.userApiService.buildHttpHeaders(token),
         })
         .pipe(
-          map((respData) => {
-            this.categories.set(respData.categories);
+          map(({ categories }) => {
+            this.categories.set(categories);
           }),
         )
         .pipe(
@@ -108,5 +111,13 @@ export class BlogApiService {
     return new Observable((observer) => {
       observer.error('error fetching authors');
     });
+  }
+
+  loadBlogs() {
+    return this.fetchBlogs(`${this.apiUrl}api/blogs/`, 'Error loading blogs');
+  }
+
+  loadCategories() {
+    return this.fetchCategories(`${this.apiUrl}api/categories/`, 'Error loading categories');
   }
 }

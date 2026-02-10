@@ -1,11 +1,34 @@
-import { Component } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
+import { DatePipe } from '@angular/common';
+import { MatCardModule } from '@angular/material/card';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatIconModule } from '@angular/material/icon';
+type MatCardAppearance = 'outlined' | 'raised' | 'filled';
+
+import { type Blog as BlogModel } from '../../models/blog.model';
+import { type Category } from '../../models/category.model';
 
 @Component({
   selector: 'app-blog',
-  imports: [],
+  imports: [MatCardModule, MatChipsModule, MatIconModule, DatePipe],
   templateUrl: './blog.html',
   styleUrl: './blog.css',
 })
 export class Blog {
+  blog = input.required<BlogModel>();
+  author = input.required<string>();
+  category = input<Category | undefined>();
+  appearance: MatCardAppearance = 'raised';
 
+  get totalVotes(): number {
+    return this.blog().votes || 0;
+  }
+
+  title: any = computed(() => {
+    return this.blog().title;
+  });
+
+  get categorySubject(): string {
+    return this.category()?.subject || 'Uncategorized';
+  }
 }

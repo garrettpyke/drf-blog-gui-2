@@ -1,5 +1,6 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 import { catchError, Observable, tap, map, throwError } from 'rxjs';
 
 import { type User } from '../models/user.model';
@@ -9,6 +10,7 @@ export class UserApiService {
   private httpClient = inject(HttpClient);
   private user = signal<User | undefined>(undefined);
   private users = signal<User[]>([]);
+  private apiUrl = environment.apiUrl;
 
   currentUser = this.user.asReadonly();
   loadedUsers = this.users.asReadonly();
@@ -33,7 +35,7 @@ export class UserApiService {
 
   signIn(userId: string, password: string) {
     return this.httpClient
-      .post<{ user: User }>('http://localhost:8000/api/sign-in/', {
+      .post<{ user: User }>(`${this.apiUrl}api/sign-in/`, {
         email: userId,
         password: password,
       })
@@ -42,10 +44,8 @@ export class UserApiService {
           next: ({ user }) => {
             console.log(user);
             this.user.set(user);
-            localStorage.setItem('blog_user', JSON.stringify(user));
+            // localStorage.setItem('blog_user', JSON.stringify(user));
           },
-          // complete: () => {
-          // },
         }),
       )
       .pipe(
@@ -60,7 +60,7 @@ export class UserApiService {
     const token = this.verifyToken();
     if (token) {
       return this.httpClient
-        .delete<HttpResponse<any>>('http://localhost:8000/api/sign-out/', {
+        .delete<HttpResponse<any>>(`${this.apiUrl}api/sign-out/`, {
           headers: this.buildHttpHeaders(token),
         })
         .pipe(
@@ -84,13 +84,13 @@ export class UserApiService {
     });
   }
 
-  fetchAuthors() {
+  fetchUsers() {
     const token = this.verifyToken();
     if (token) {
       return (
         this.httpClient
           // correct data typing here is important
-          .get<{ users: User[] }>(`http://localhost:8000/api/users/`, {
+          .get<{ users: User[] }>(`${this.apiUrl}api/users/`, {
             headers: this.buildHttpHeaders(token),
           })
           .pipe(
