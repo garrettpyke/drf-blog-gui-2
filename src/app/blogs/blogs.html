@@ -1,11 +1,13 @@
-<!-- @for (blog of blogs(); track blog.id) {
-        <app-blog
-          [blog]="blog"
-          [author]="authorInfo(blog.author)"
-          [category]="getFullCategory(blog.category)"
-          (click)="onClickBlog(blog.id)"
-        />
-      } @empty {
-        <h5>Blogs not loaded...</h5>
-      } -->
-<p>blogs works!</p>
+@if (isFetching()) {
+  <h3>Loading blogs...</h3>
+}
+@for (blog of blogs(); track blog.id) {
+  <app-blog
+    [blog]="blog"
+    [author]="getAuthorEmail(blog.author)"
+    [category]="getCategoryDesc(blog.category)"
+    (click)="onClickBlog(blog.id)"
+  />
+} @empty {
+  <h5>Blogs not loaded...</h5>
+}

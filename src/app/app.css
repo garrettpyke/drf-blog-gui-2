@@ -1,8 +1,12 @@
-.app-subheader {
+/* .app-subheader {
   color: #797428;
   text-align: center;
 }
 
 h3 {
   text-align: center;
+} */
+
+body {
+  background-color: var(--mat-sys-surface);
 }

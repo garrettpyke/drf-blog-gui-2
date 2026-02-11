@@ -17,7 +17,7 @@ import { type Category } from '../../models/category.model';
 export class Blog {
   blog = input.required<BlogModel>();
   author = input.required<string>();
-  category = input<Category | undefined>();
+  category = input.required<string>();
   appearance: MatCardAppearance = 'raised';
 
   get totalVotes(): number {
@@ -27,8 +27,4 @@ export class Blog {
   title: any = computed(() => {
     return this.blog().title;
   });
-
-  get categorySubject(): string {
-    return this.category()?.subject || 'Uncategorized';
-  }
 }

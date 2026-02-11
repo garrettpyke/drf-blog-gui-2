@@ -32,7 +32,7 @@ export class BlogApiService {
       },
       complete: () => {
         console.log('Category loading completed');
-        console.log(this.loadedCategories());
+        // console.log(this.loadedCategories());
       },
     });
     this.destroyRef.onDestroy(() => categorySubscription.unsubscribe());
@@ -43,7 +43,7 @@ export class BlogApiService {
       },
       complete: () => {
         console.log('Author loading completed');
-        console.log(this.loadedAuthors());
+        // console.log(this.loadedAuthors());
       },
     });
     this.destroyRef.onDestroy(() => authorSubscription.unsubscribe());
@@ -79,7 +79,7 @@ export class BlogApiService {
         .pipe(
           catchError((error) => {
             console.log(error);
-            return throwError(() => new Error(error.message));
+            return throwError(() => new Error(errMessage, error));
           }),
         );
     }
@@ -104,7 +104,7 @@ export class BlogApiService {
         .pipe(
           catchError((error) => {
             console.log(error);
-            return throwError(() => new Error(`Error fetching categories: ${error.message}`));
+            return throwError(() => new Error(errMessage, error));
           }),
         );
     }
