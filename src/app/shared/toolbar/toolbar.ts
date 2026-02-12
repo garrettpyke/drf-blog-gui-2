@@ -12,11 +12,11 @@ import { MatButtonModule } from '@angular/material/button';
 })
 export class Toolbar {
   newBlog = output<boolean>();
-  logout = output<void>();
+  signOut = output<void>();
 
-  onClickLogout() {
+  onClickSignout() {
     // console.log('Toolbar: Logout clicked');
-    this.logout.emit();
+    this.signOut.emit();
   }
 
   onClickNewBlog() {

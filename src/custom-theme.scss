@@ -6,6 +6,12 @@
 // custom components at https://material.angular.dev/guide/theming
 @use '@angular/material' as mat;
 
+:root {
+  @include mat.icon-overrides((
+    color: var(--mat-sys-on-surface),
+  ));
+}
+
 html {
   @include mat.theme((
     color: (

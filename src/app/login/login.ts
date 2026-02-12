@@ -24,8 +24,6 @@ export class Login {
       },
       complete: () => {
         this.signIn.emit(this.userApiService.currentUser()!);
-        // console.log(`login.onSubmit: ${this.userApiService.currentUser()?.email}`);
-        // this.router.navigate(['/blog-entries']);
       },
     });
 

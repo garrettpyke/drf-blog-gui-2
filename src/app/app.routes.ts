@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { NavMain } from './nav-main/nav-main';
 
 /*
      <my-domain> => login (if not logged in, else blogs/all)
@@ -10,7 +11,8 @@ import { Routes } from '@angular/router';
 */
 
 export const routes: Routes = [
-  //   {
-  //     path: '',
-  //   },
+  {
+    path: 'main',
+    component: NavMain,
+  },
 ];

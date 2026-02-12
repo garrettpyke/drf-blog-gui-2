@@ -6,18 +6,20 @@ import { catchError, Observable, tap, map, throwError } from 'rxjs';
 import { type User } from '../models/user.model';
 import { type Blog } from '../models/blog.model';
 import { type Category } from '../models/category.model';
+import { type NewBlog } from '../blogs/new-blog/new-blog';
 import { UserApiService } from './user-api.service';
+import { NewBlogModel } from '../models/new-blog.model';
 
 @Injectable({ providedIn: 'root' })
 export class BlogApiService {
   private httpClient = inject(HttpClient);
   private userApiService = inject(UserApiService);
-  private user = signal<User>(this.userApiService.currentUser()!);
   private blogs = signal<Blog[]>([]);
   private categories = signal<Category[]>([]);
   private destroyRef = inject(DestroyRef);
   private apiUrl = environment.apiUrl;
 
+  user = signal<User>(this.userApiService.currentUser()!);
   loadedBlogs = this.blogs.asReadonly();
   loadedCategories = this.categories.asReadonly();
   loadedAuthors = computed(
@@ -119,5 +121,31 @@ export class BlogApiService {
 
   loadCategories() {
     return this.fetchCategories(`${this.apiUrl}api/categories/`, 'Error loading categories');
+  }
+
+  postNewBlog(newBlog: NewBlogModel) {
+    const token = this.verifyToken();
+
+    if (token) {
+      return this.httpClient
+        .post<Blog>(`${this.apiUrl}api/blogs/`, newBlog, {
+          headers: this.userApiService.buildHttpHeaders(token),
+        })
+        .pipe(
+          tap({
+            next: (blog) => {
+              this.blogs.update((blogs) => [...blogs, blog]);
+            },
+          }),
+        )
+        .pipe(
+          catchError((err) => {
+            return throwError(() => new Error('Error posting new blog', err));
+          }),
+        );
+    }
+    return new Observable((observer) => {
+      observer.error('error posting new blog');
+    });
   }
 }

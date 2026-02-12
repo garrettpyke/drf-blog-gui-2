@@ -1,3 +1,10 @@
+.toolbar {
+  /* background-color: var(--mat-sys-primary); */
+  color: var(--mat-sys-on-surface);
+  /* background-color: #797428; */
+  background-color: #2196f3;
+}
+
 .toolbar-spacer {
   flex: 1 1 auto;
 }
