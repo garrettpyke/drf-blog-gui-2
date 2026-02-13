@@ -1,15 +1,15 @@
 import { Component, signal, inject, DestroyRef } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterOutlet } from '@angular/router';
 
 import { type User } from './models/user.model';
 import { Header } from './header/header';
 import { Login } from './login/login';
 import { UserApiService } from './services/user-api.service';
-import { NavMain } from './nav-main/nav-main';
+import { Toolbar } from './shared/toolbar/toolbar';
 
 @Component({
   selector: 'app-root',
-  imports: [Header, Login, NavMain],
+  imports: [Header, Login, Toolbar, RouterOutlet],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
@@ -23,7 +23,7 @@ export class App {
   onSignIn(user: User) {
     this.user.set(this.userApiService.currentUser());
 
-    this.router.navigate(['/main']);
+    this.router.navigate(['/blog-app/blogs']);
   }
 
   onSignOut() {

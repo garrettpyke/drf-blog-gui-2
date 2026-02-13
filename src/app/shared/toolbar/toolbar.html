@@ -1,18 +1,14 @@
-<!-- todo: make this component more modular -->
 <mat-toolbar class="toolbar">
   <button matIconButton class="section-toolbar section-toolbar-menu" aria-label="Menu icon">
     <mat-icon>menu</mat-icon>
   </button>
+  <!-- todo: Make this span an input for current page/state -->
   <span>All Blog Entries</span>
-  <!-- <span></span> -->
-  <button
-    (click)="onClickNewBlog()"
-    matIconButton
-    class="section-toolbar-btn"
-    aria-label="new blog"
-  >
-    <mat-icon>post_add</mat-icon>
-  </button>
+  <a routerLink="/blog-app/new-blog">
+    <button matIconButton class="section-toolbar-btn" aria-label="new blog">
+      <mat-icon>post_add</mat-icon>
+    </button>
+  </a>
   <span class="toolbar-spacer"></span>
   <button (click)="onClickSignout()" matIconButton aria-label="logout">
     <mat-icon>logout</mat-icon>

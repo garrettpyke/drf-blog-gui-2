@@ -6,10 +6,10 @@ import { MatDividerModule } from '@angular/material/divider';
 // import { MatSelect } from '@angular/material/select';
 // import { MatInputModule } from '@angular/material/input';
 
-// import { BlogApiService, type Category } from '../blog-api.service';
 import { type Category } from '../../models/category.model';
 import { type NewBlogModel } from '../../models/new-blog.model';
 import { BlogApiService } from '../../services/blog-api.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-new-blog',
@@ -27,6 +27,7 @@ export class NewBlog {
   categories = input<Category[]>();
   blogApiService = inject(BlogApiService);
   destroyRef = inject(DestroyRef);
+  private router = inject(Router);
 
   private validateBlog(): boolean {
     const { id, email, token } = this.blogApiService.user()!;
@@ -60,7 +61,7 @@ export class NewBlog {
         },
         complete: () => {
           console.log('Blog post completed');
-          this.close.emit();
+          this.router.navigate(['blog-app/blogs']);
         },
       });
       this.destroyRef.onDestroy(() => subscription.unsubscribe());
@@ -70,7 +71,8 @@ export class NewBlog {
   }
 
   onCancel() {
-    this.close.emit();
+    // this.close.emit();
+    this.router.navigate(['blog-app/blogs']);
   }
 
   onFieldChange(field: any) {

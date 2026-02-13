@@ -2,7 +2,8 @@
 <body>
   <main>
     @if (user()?.id) {
-      <app-nav-main (signOut)="onSignOut()" />
+      <app-toolbar (signOut)="onSignOut()" />
+      <router-outlet />
     } @else {
       <app-login (signIn)="onSignIn($event)" />
     }

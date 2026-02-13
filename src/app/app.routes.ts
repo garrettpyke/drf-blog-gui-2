@@ -1,5 +1,8 @@
 import { Routes } from '@angular/router';
+
 import { NavMain } from './nav-main/nav-main';
+import { Blogs } from './blogs/blogs';
+import { NewBlog } from './blogs/new-blog/new-blog';
 
 /*
      <my-domain> => login (if not logged in, else blogs/all)
@@ -12,7 +15,21 @@ import { NavMain } from './nav-main/nav-main';
 
 export const routes: Routes = [
   {
-    path: 'main',
+    path: 'blog-app',
     component: NavMain,
+    children: [
+      {
+        path: 'blogs',
+        component: Blogs,
+      },
+      {
+        path: 'new-blog',
+        component: NewBlog,
+      },
+      // {
+      //   path: 'blog-detail',
+      //   component:,
+      // },
+    ],
   },
 ];
