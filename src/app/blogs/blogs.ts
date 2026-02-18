@@ -1,4 +1,5 @@
 import { Component, DestroyRef, inject, signal, computed } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
 import { BlogApiService } from '../services/blog-api.service';
 import { Blog } from './blog/blog';
@@ -48,5 +49,18 @@ export class Blogs {
     return desc || 'uncategorized';
   }
 
-  onClickBlog(blogId: number) {}
+  onClickBlog(blogId: number) {
+    const subscription = this.blogApiService.loadBlogDetail(blogId).subscribe({
+      error: (error: Error) => {
+        console.log(error);
+      },
+      complete: () => {
+        console.log('done');
+      },
+    });
+
+    this.destroyRef.onDestroy(() => {
+      subscription.unsubscribe();
+    });
+  }
 }

@@ -3,24 +3,27 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import { catchError, Observable, tap, map, throwError } from 'rxjs';
 
-import { type User } from '../models/user.model';
 import { type Blog } from '../models/blog.model';
+import { type BlogDetail } from '../models/blog-detail.model';
 import { type Category } from '../models/category.model';
-import { type NewBlog } from '../blogs/new-blog/new-blog';
+import { type Comment } from '../models/comment.model';
+import { type User } from '../models/user.model';
+import { type NewBlogModel } from '../models/new-blog.model';
 import { UserApiService } from './user-api.service';
-import { NewBlogModel } from '../models/new-blog.model';
 
 @Injectable({ providedIn: 'root' })
 export class BlogApiService {
   private httpClient = inject(HttpClient);
   private userApiService = inject(UserApiService);
   private blogs = signal<Blog[]>([]);
+  private blogDetail = signal<BlogDetail | {}>({});
   private categories = signal<Category[]>([]);
   private destroyRef = inject(DestroyRef);
   private apiUrl = environment.apiUrl;
 
   user = signal<User>(this.userApiService.currentUser()!);
   loadedBlogs = this.blogs.asReadonly();
+  loadedBlogDetail = this.blogDetail.asReadonly();
   loadedCategories = this.categories.asReadonly();
   loadedAuthors = computed(
     () => this.userApiService.loadedUsers(),
@@ -49,9 +52,6 @@ export class BlogApiService {
       },
     });
     this.destroyRef.onDestroy(() => authorSubscription.unsubscribe());
-
-    const apiUrl = environment.apiUrl;
-    console.log(apiUrl);
   }
 
   private verifyToken(): string {
@@ -64,7 +64,6 @@ export class BlogApiService {
 
   private fetchBlogs(url: string, errMessage: string): Observable<any> {
     const token = this.verifyToken();
-    // console.log
 
     if (token) {
       return this.httpClient
@@ -90,12 +89,40 @@ export class BlogApiService {
     });
   }
 
+  private fetchBlogDetail(blogId: number, url: string, errMessage: string): Observable<any> {
+    const token = this.verifyToken();
+
+    if (token) {
+      return this.httpClient
+        .get<[Blog, Comment[]]>(`${this.apiUrl}api/blog/${blogId}`, {
+          headers: this.userApiService.buildHttpHeaders(token),
+        })
+        .pipe(
+          tap({
+            next: ([blog, comments]) => {
+              this.blogDetail.set({ ...blog, comments: comments });
+              console.log(this.blogDetail());
+            },
+          }),
+        )
+        .pipe(
+          catchError((error) => {
+            console.log(error);
+            return throwError(() => new Error(errMessage, error));
+          }),
+        );
+    }
+    return new Observable((observer) => {
+      observer.error(errMessage);
+    });
+  }
+
   private fetchCategories(url: string, errMessage: string) {
     const token = this.verifyToken();
 
     if (token) {
       return this.httpClient
-        .get<{ categories: Category[] }>('http://localhost:8000/api/categories/', {
+        .get<{ categories: Category[] }>(`${this.apiUrl}api/categories/`, {
           headers: this.userApiService.buildHttpHeaders(token),
         })
         .pipe(
@@ -117,6 +144,14 @@ export class BlogApiService {
 
   loadBlogs() {
     return this.fetchBlogs(`${this.apiUrl}api/blogs/`, 'Error loading blogs');
+  }
+
+  loadBlogDetail(blogId: number) {
+    return this.fetchBlogDetail(
+      blogId,
+      `${this.apiUrl}api/blog/${blogId}/`,
+      'Error loading blog detail',
+    );
   }
 
   loadCategories() {

@@ -3,7 +3,7 @@ import { Routes } from '@angular/router';
 import { NavMain } from './nav-main/nav-main';
 import { Blogs } from './blogs/blogs';
 import { NewBlog } from './blogs/new-blog/new-blog';
-
+import { BlogDetail } from './blogs/blog-detail/blog-detail';
 /*
      <my-domain> => login (if not logged in, else blogs/all)
      <my-domain>/blogs/all => all blogs
@@ -12,7 +12,6 @@ import { NewBlog } from './blogs/new-blog/new-blog';
         <my-domain>/blogs/all/search/:params => all blogs
      <my-domain>/blogs/:id => blog detail
 */
-
 export const routes: Routes = [
   {
     path: 'blog-app',
@@ -26,10 +25,10 @@ export const routes: Routes = [
         path: 'new-blog',
         component: NewBlog,
       },
-      // {
-      //   path: 'blog-detail',
-      //   component:,
-      // },
+      {
+        path: 'blog-detail/:id',
+        component: BlogDetail,
+      },
     ],
   },
 ];

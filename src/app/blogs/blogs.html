@@ -2,12 +2,14 @@
   <h3>Loading blogs...</h3>
 }
 @for (blog of blogs(); track blog.id) {
+  <!-- <a routerLink="/"> -->
   <app-blog
     [blog]="blog"
     [author]="getAuthorEmail(blog.author)"
     [category]="getCategoryDesc(blog.category)"
     (click)="onClickBlog(blog.id)"
   />
+  <!-- </a> -->
 } @empty {
   <h5>Wow, such empty...</h5>
 }
