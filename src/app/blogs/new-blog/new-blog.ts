@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, input, output } from '@angular/core';
+import { Component, DestroyRef, inject, computed, output } from '@angular/core';
 import { FormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms'; // todo: look into validators & formbuilder usage
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
@@ -24,10 +24,10 @@ export class NewBlog {
   content = '';
   category!: number;
   newBlog!: NewBlogModel;
-  categories = input<Category[]>();
   blogApiService = inject(BlogApiService);
   destroyRef = inject(DestroyRef);
   private router = inject(Router);
+  categories = computed<Category[]>(() => this.blogApiService.loadedCategories());
 
   private validateBlog(): boolean {
     const { id, email, token } = this.blogApiService.user()!;
