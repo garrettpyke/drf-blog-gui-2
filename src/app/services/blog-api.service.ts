@@ -16,7 +16,7 @@ export class BlogApiService {
   private httpClient = inject(HttpClient);
   private userApiService = inject(UserApiService);
   private blogs = signal<Blog[]>([]);
-  private blogDetail = signal<BlogDetail | {}>({});
+  private blogDetail = signal<BlogDetail | undefined>(undefined);
   private categories = signal<Category[]>([]);
   private destroyRef = inject(DestroyRef);
   private apiUrl = environment.apiUrl;

@@ -7,7 +7,7 @@ import { type Blog as BlogModel } from '../models/blog.model';
 
 @Component({
   selector: 'app-blogs',
-  imports: [Blog],
+  imports: [Blog, RouterLink],
   templateUrl: './blogs.html',
   styleUrl: './blogs.css',
 })
@@ -50,17 +50,16 @@ export class Blogs {
   }
 
   onClickBlog(blogId: number) {
-    const subscription = this.blogApiService.loadBlogDetail(blogId).subscribe({
-      error: (error: Error) => {
-        console.log(error);
-      },
-      complete: () => {
-        console.log('done');
-      },
-    });
-
-    this.destroyRef.onDestroy(() => {
-      subscription.unsubscribe();
-    });
+    // const subscription = this.blogApiService.loadBlogDetail(blogId).subscribe({
+    //   error: (error: Error) => {
+    //     console.log(error);
+    //   },
+    //   complete: () => {
+    //     console.log('done');
+    //   },
+    // });
+    // this.destroyRef.onDestroy(() => {
+    //   subscription.unsubscribe();
+    // });
   }
 }

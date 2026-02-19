@@ -26,7 +26,7 @@ export const routes: Routes = [
         component: NewBlog,
       },
       {
-        path: 'blog-detail/:id',
+        path: 'blog-detail/:blogId',
         component: BlogDetail,
       },
     ],
