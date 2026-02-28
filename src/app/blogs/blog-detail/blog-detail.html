@@ -10,9 +10,12 @@
   </mat-card-header>
   <mat-card-content>
     <h3>{{ blogDetail()?.content }}</h3>
-    <h4>
-      {{ categorySubject() }}
-    </h4>
+    <div class="content-card-meta">
+      <h4>
+        {{ categorySubject() }}
+      </h4>
+      <h3>vote_counts, comment_counts, sort-comments</h3>
+    </div>
     <p>{{ author.email }}</p>
     <p>{{ blogDetail()?.updated_at | date: 'medium' }}</p>
   </mat-card-content>
@@ -30,9 +33,9 @@
     </mat-chip-set>
   </mat-card-footer>
 </mat-card>
-<!-- @for (comment of comments(); track comment.id) {
-    <app-comment [comment]="comment" [author]="authorInfo(comment.author)" />
-  }
-} @else {
+@for (comment of comments(); track comment.id) {
+  <app-comment [comment]="comment" [author]="authorInfo(comment.author)" />
+}
+<!-- } @else {
   <app-update-blog [blogDetail]="blogDetail()" (cancel)="onCancelUpdate()" /> 
 } -->

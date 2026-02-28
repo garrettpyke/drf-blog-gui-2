@@ -6,7 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 type MatCardAppearance = 'outlined' | 'raised' | 'filled';
 
 import { type Blog as BlogModel } from '../../models/blog.model';
-import { type Category } from '../../models/category.model';
+// import { type Category } from '../../models/category.model';
 
 @Component({
   selector: 'app-blog',

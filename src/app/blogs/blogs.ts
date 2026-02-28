@@ -1,5 +1,7 @@
 import { Component, DestroyRef, inject, signal, computed } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatIcon } from '@angular/material/icon';
 
 import { BlogApiService } from '../services/blog-api.service';
 import { Blog } from './blog/blog';
@@ -7,7 +9,7 @@ import { type Blog as BlogModel } from '../models/blog.model';
 
 @Component({
   selector: 'app-blogs',
-  imports: [Blog, RouterLink],
+  imports: [Blog, RouterLink, MatIcon, MatChipsModule],
   templateUrl: './blogs.html',
   styleUrl: './blogs.css',
 })
@@ -20,7 +22,7 @@ export class Blogs {
   authors = computed(() => this.blogApiService.loadedAuthors());
 
   ngOnInit(): void {
-    this.isFetching.set(true); // todo: add elements to template to reflect this
+    this.isFetching.set(true);
 
     const subscription = this.blogApiService.loadBlogs().subscribe({
       error: (error: Error) => {
@@ -49,17 +51,17 @@ export class Blogs {
     return desc || 'uncategorized';
   }
 
-  onClickBlog(blogId: number) {
-    // const subscription = this.blogApiService.loadBlogDetail(blogId).subscribe({
-    //   error: (error: Error) => {
-    //     console.log(error);
-    //   },
-    //   complete: () => {
-    //     console.log('done');
-    //   },
-    // });
-    // this.destroyRef.onDestroy(() => {
-    //   subscription.unsubscribe();
-    // });
-  }
+  // onClickBlog(blogId: number) {
+  // const subscription = this.blogApiService.loadBlogDetail(blogId).subscribe({
+  //   error: (error: Error) => {
+  //     console.log(error);
+  //   },
+  //   complete: () => {
+  //     console.log('done');
+  //   },
+  // });
+  // this.destroyRef.onDestroy(() => {
+  //   subscription.unsubscribe();
+  // });
+  // }
 }

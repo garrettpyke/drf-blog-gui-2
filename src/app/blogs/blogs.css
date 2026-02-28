@@ -3,7 +3,14 @@ h3 {
 }
 
 button {
-  /* display: flex;
-  align-self: center; */
   margin: 10px auto 10px auto;
+}
+
+#contrast-chip {
+  background-color: var(--mat-sys-secondary);
+  /* background-color: #2196f3; */
+}
+
+#contrast-chip mat-icon {
+  color: var(--mat-sys-surface);
 }

@@ -14,16 +14,16 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 type MatCardAppearance = 'outlined' | 'raised' | 'filled';
 
-// import { Comment } from '../../comments/comment/comment';
 // import { UpdateBlog } from '../update-blog/update-blog';
-import { type BlogDetail as BlogDetailModel } from '../../models/blog-detail.model';
+import { Comment } from '../../comments/comment/comment';
+// import { type BlogDetail as BlogDetailModel } from '../../models/blog-detail.model';
 import { type Category } from '../../models/category.model';
 import { type User } from '../../models/user.model';
 import { BlogApiService } from '../../services/blog-api.service';
 
 @Component({
   selector: 'app-blog-detail',
-  imports: [MatCardModule, MatChipsModule, MatIconModule, DatePipe],
+  imports: [MatCardModule, MatChipsModule, MatIconModule, DatePipe, Comment],
   // imports: [MatCardModule, MatChipsModule, MatIconModule, DatePipe, Comment, UpdateBlog],
   templateUrl: './blog-detail.html',
   styleUrl: './blog-detail.css',
@@ -31,8 +31,9 @@ import { BlogApiService } from '../../services/blog-api.service';
 export class BlogDetail implements OnInit {
   private blogApiService = inject(BlogApiService);
   blogId = input.required<number>();
+  commentsOrder = signal<'asc' | 'desc'>('desc'); // todo: route query param
   blogDetail = computed(() => this.blogApiService.loadedBlogDetail());
-  // comments = computed(() => this.blogDetail()?.comments ?? []);
+  comments = computed(() => this.blogDetail()?.comments ?? []);
   categories = signal<Category[]>(this.blogApiService.loadedCategories());
   users = computed<User[]>(() => this.blogApiService.loadedAuthors());
   user = computed<User>(() => this.blogApiService.user()!);
@@ -52,6 +53,7 @@ export class BlogDetail implements OnInit {
       },
       complete: () => {
         console.log('Blog detail loaded!');
+        // console.log('comments: ' + this.comments().length);
       },
     });
 
@@ -81,13 +83,13 @@ export class BlogDetail implements OnInit {
     if (author) {
       return author;
     }
-    return { id: -1, email: 'Unknown Author' };
+    return { id: -1, email: 'unknown author' };
   }
 
-  // authorInfo(authorId: number): string {
-  //   const user = this.users()?.find((user) => user.id === authorId);
-  //   return user ? user.email : 'Unknown Author';
-  // }
+  authorInfo(authorId: number): string {
+    const user = this.users()?.find((user) => user.id === authorId);
+    return user ? user.email : 'unknown author';
+  }
 
   onClickDeleteBlog() {
     console.log('Delete Blog clicked');

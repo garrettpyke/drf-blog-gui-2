@@ -37,3 +37,23 @@
   max-width: 90%;
   background-color: dodgerblue;
 }
+
+.content-card-meta {
+  /* width: 500px; */
+  display: flex;
+  flex-direction: row;
+  /* align-content: space-around; */
+  align-items: stretch;
+  justify-content: space-between;
+}
+
+.content-card-meta h3 {
+  display: block;
+  box-sizing: border-box;
+  color: var(--mat-sys-on-tertiary);
+}
+
+/* app-comment {
+  display: flex;
+  align-items: flex-end;
+} */

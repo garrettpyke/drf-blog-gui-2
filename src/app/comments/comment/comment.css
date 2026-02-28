@@ -1,0 +1,12 @@
+.comment-card {
+  max-width: 50%;
+  display: inline-block;
+}
+
+.comment-card-title {
+  font-size: medium;
+  font-family: Roboto, sans-serif;
+  font-weight: 500;
+  font-style: italic;
+  text-decoration: double;
+}

@@ -15,6 +15,15 @@ export class UserApiService {
   currentUser = this.user.asReadonly();
   loadedUsers = this.users.asReadonly();
 
+  constructor() {
+    // todo: See [this link](https://medium.com/bb-tutorials-and-thoughts/retaining-state-of-the-angular-app-when-page-refresh-with-ngrx-6c486d3012a9)
+    //* ...for ideas on how to persist state across page refreshes
+    const savedUser = localStorage.getItem('blog_user');
+    if (savedUser) {
+      this.user.set(JSON.parse(savedUser));
+    }
+  }
+
   buildHttpHeaders(token: string, params?: string | string[]): HttpHeaders {
     return new HttpHeaders({
       Authorization: `token ${token}`,
@@ -42,9 +51,9 @@ export class UserApiService {
       .pipe(
         tap({
           next: ({ user }) => {
-            console.log(user);
+            // console.log(user);
             this.user.set(user);
-            // localStorage.setItem('blog_user', JSON.stringify(user));
+            localStorage.setItem('blog_user', JSON.stringify(user)); //* see above
           },
         }),
       )
