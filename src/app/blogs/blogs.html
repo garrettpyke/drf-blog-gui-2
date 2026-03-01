@@ -1,7 +1,11 @@
 @if (isFetching()) {
   <h3>Loading blogs...</h3>
 }
-<mat-chip id="contrast-chip"><mat-icon>arrow_downward</mat-icon></mat-chip>
+<a routerLink="./" [queryParams]="{ sorted: sorted() === 'asc' ? 'desc' : 'asc' }"
+  ><mat-chip id="contrast-chip" (click)="onClickSort()">
+    <mat-icon>{{ sorted() === 'asc' ? 'arrow_downward' : 'arrow_upward' }}</mat-icon>
+  </mat-chip></a
+>
 @for (blog of blogs(); track blog.id) {
   <a [routerLink]="['//blog-app/blog-detail/', blog.id]">
     <app-blog

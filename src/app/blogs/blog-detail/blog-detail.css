@@ -39,10 +39,8 @@
 }
 
 .content-card-meta {
-  /* width: 500px; */
   display: flex;
   flex-direction: row;
-  /* align-content: space-around; */
   align-items: stretch;
   justify-content: space-between;
 }

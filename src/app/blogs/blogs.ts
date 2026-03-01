@@ -1,5 +1,5 @@
 import { Component, DestroyRef, inject, signal, computed } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { RouterLink, ActivatedRoute } from '@angular/router';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIcon } from '@angular/material/icon';
 
@@ -18,8 +18,23 @@ export class Blogs {
   private blogApiService = inject(BlogApiService);
   private destroyRef = inject(DestroyRef);
   blogs = signal<BlogModel[]>([]);
+  sorted = signal<'asc' | 'desc'>('desc');
+  private activatedRoute = inject(ActivatedRoute);
   categories = computed(() => this.blogApiService.loadedCategories());
   authors = computed(() => this.blogApiService.loadedAuthors());
+  sortedBlogs = computed(() => {
+    if (this.blogs()) {
+      return this.blogs().sort((a, b) => {
+        if (this.sorted() === 'desc') {
+          return a.id > b.id ? 1 : -1;
+        } else {
+          return a.id > b.id ? -1 : 1;
+        }
+      });
+    } else {
+      return [];
+    }
+  });
 
   ngOnInit(): void {
     this.isFetching.set(true);
@@ -31,13 +46,23 @@ export class Blogs {
       complete: () => {
         this.blogs.set(this.blogApiService.loadedBlogs()!);
         this.isFetching.set(false);
-        console.log(this.blogs());
+        // console.log(this.blogs());
       },
     });
 
     this.destroyRef.onDestroy(() => {
       subscription.unsubscribe();
     });
+
+    const routeSubscription = this.activatedRoute.queryParams.subscribe({
+      next: (params) => this.sorted.set(params['sorted']),
+    });
+
+    this.destroyRef.onDestroy(() => {
+      routeSubscription.unsubscribe();
+    });
+
+    console.log('sortedBlogs: ' + this.sortedBlogs());
   }
 
   getAuthorEmail(authorId: number): string {
@@ -49,6 +74,11 @@ export class Blogs {
     const category = this.categories().find((cat) => cat.id === categoryId);
     const desc = category?.genre ? `${category?.subject} - ${category?.genre}` : category?.subject;
     return desc || 'uncategorized';
+  }
+
+  onClickSort() {
+    console.log(this.sortedBlogs());
+    this.blogs.set(this.sortedBlogs());
   }
 
   // onClickBlog(blogId: number) {
