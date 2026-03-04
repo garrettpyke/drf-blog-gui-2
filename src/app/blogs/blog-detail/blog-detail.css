@@ -52,7 +52,8 @@
 }
 
 #chip-selected {
-  background-color: yellow;
+  /* background-color: var(--mat-sys-error-container); */
+  background-color: #ffb33f;
 }
 
 /* app-comment {

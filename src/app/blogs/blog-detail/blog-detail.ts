@@ -20,6 +20,7 @@ import { Comment } from '../../comments/comment/comment';
 import { type Category } from '../../models/category.model';
 import { type User } from '../../models/user.model';
 import { type Vote } from '../../models/vote.model';
+import { type VoteMap } from '../../models/vote-map.model';
 import { BlogApiService } from '../../services/blog-api.service';
 
 @Component({
@@ -43,6 +44,7 @@ export class BlogDetail implements OnInit {
   deleteBlog = output<boolean>();
   updateBlog = false;
   blogAppearance: MatCardAppearance = 'raised';
+  voteMap = { love: false, like: false, meh: false, downVote: false };
   destroyRef = inject(DestroyRef);
 
   ngOnInit() {
@@ -68,6 +70,8 @@ export class BlogDetail implements OnInit {
         complete: () => {
           console.log('BlogVote detail loaded');
           console.log(this.blogApiService.loadedBlogVoteDetail());
+          this.setVoteMap();
+          console.log(this.voteMap);
         },
       });
 
@@ -77,7 +81,6 @@ export class BlogDetail implements OnInit {
   }
 
   get title(): string {
-    // return this.blogDetail()?.title || 'undefined title';
     return this.blogVoteDetail()?.title || 'undefined title';
   }
 
@@ -112,14 +115,31 @@ export class BlogDetail implements OnInit {
     return total;
   }
 
-  voteMap(): number[] {
-    let voteMap = [0, 0, 0, 0]; // todo: make object instead
-
-    this.votes().forEach((vote) => (voteMap[vote.vote_type] = 1));
-    return voteMap;
+  setVoteMap(): void {
+    this.votes().forEach((vote) => {
+      switch (vote.vote_type) {
+        case 2:
+          this.voteMap.love = true;
+          break;
+        case 1:
+          this.voteMap.like = true;
+          break;
+        case 0:
+          this.voteMap.meh = true;
+          break;
+        case -1:
+          this.voteMap.downVote = true;
+          break;
+      }
+    });
+    // todo: Consider using a VoteMap array: voteMap[vote_type] could be easier to work with
   }
 
-  onClickDeleteBlog() {
+  getchipAttrClass(voteType: number) {
+    return 0;
+  }
+
+  onClickDeleteBlog(): void {
     console.log('Delete Blog clicked');
     this.deleteBlog.emit(true);
   }

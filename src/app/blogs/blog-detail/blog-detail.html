@@ -14,18 +14,22 @@
       <h4>
         {{ categorySubject() }}
       </h4>
-      <h3>total votes:{{ totalVotes }}, comments:{{ comments().length }}, sort-comments</h3>
-      <h3>( more_content_here? )</h3>
+      <h3>total votes:{{ totalVotes }}, comments:{{ comments().length }}</h3>
+      <!-- <h3>( more_content_here? )</h3> -->
     </div>
     <p>{{ author.email }}</p>
     <p>{{ blogVoteDetail()?.updated_at | date: 'medium' }}</p>
   </mat-card-content>
   <mat-card-footer class="content-card-footer blog-card-footer">
     <mat-chip-set class="content-card-footer-votes" aria-label="Blog actions">
-      <mat-chip id="chip-selected"><mat-icon>sentiment_very_satisfied</mat-icon></mat-chip>
-      <mat-chip><mat-icon>thumb_up</mat-icon></mat-chip>
-      <mat-chip><mat-icon>thumb_down</mat-icon></mat-chip>
-      <mat-chip><mat-icon>sentiment_very_dissatisfied</mat-icon></mat-chip>
+      <mat-chip [id]="voteMap.love ? 'chip-selected' : ''"
+        ><mat-icon>sentiment_very_satisfied</mat-icon></mat-chip
+      >
+      <mat-chip [id]="voteMap.like ? 'chip-selected' : ''"><mat-icon>thumb_up</mat-icon></mat-chip>
+      <mat-chip [id]="voteMap.meh ? 'chip-selected' : ''"><mat-icon>thumb_down</mat-icon></mat-chip>
+      <mat-chip [id]="voteMap.downVote ? 'chip-selected' : ''"
+        ><mat-icon>sentiment_very_dissatisfied</mat-icon></mat-chip
+      >
     </mat-chip-set>
     <mat-chip-set class="content-card-footer-actions" aria-label="Blog actions">
       @if (user().id === author.id) {

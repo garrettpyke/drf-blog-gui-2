@@ -10,8 +10,8 @@
         DOWN_VOTE: "Down"
   */
 export interface VoteMap {
-  love: number;
-  like: number;
-  meh: number;
-  downVote: number;
+  love: boolean;
+  like: boolean;
+  meh: boolean;
+  downVote: boolean;
 }
