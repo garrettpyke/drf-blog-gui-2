@@ -1,7 +1,7 @@
-export interface vote {
+export interface Vote {
   id: number;
   vote_type: number;
   voted_at: string;
   blog: number;
-  voter: 3;
+  voter: number;
 }

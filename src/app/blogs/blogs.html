@@ -3,7 +3,7 @@
 }
 <a routerLink="./" [queryParams]="{ sorted: sorted() === 'asc' ? 'desc' : 'asc' }"
   ><mat-chip id="contrast-chip" (click)="onClickSort()">
-    <mat-icon>{{ sorted() === 'asc' ? 'arrow_downward' : 'arrow_upward' }}</mat-icon>
+    <mat-icon>{{ sorted() === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
   </mat-chip></a
 >
 @for (blog of blogs(); track blog.id) {
@@ -14,12 +14,6 @@
       [category]="getCategoryDesc(blog.category)"
     />
   </a>
-  <!-- <app-blog
-    [blog]="blog"
-    [author]="getAuthorEmail(blog.author)"
-    [category]="getCategoryDesc(blog.category)"
-    (click)="onClickBlog(blog.id)"
-  /> -->
 } @empty {
-  <h5>Wow, such empty...</h5>
+  <h3>Wow, such empty...</h3>
 }

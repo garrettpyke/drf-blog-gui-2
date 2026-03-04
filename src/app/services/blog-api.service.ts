@@ -5,10 +5,12 @@ import { catchError, Observable, tap, map, throwError } from 'rxjs';
 
 import { type Blog } from '../models/blog.model';
 import { type BlogDetail } from '../models/blog-detail.model';
+import { type BlogVoteDetail } from '../models/blog-vote-detail.model';
 import { type Category } from '../models/category.model';
 import { type Comment } from '../models/comment.model';
 import { type User } from '../models/user.model';
 import { type NewBlogModel } from '../models/new-blog.model';
+import { type Vote } from '../models/vote.model';
 import { UserApiService } from './user-api.service';
 
 @Injectable({ providedIn: 'root' })
@@ -17,6 +19,7 @@ export class BlogApiService {
   private userApiService = inject(UserApiService);
   private blogs = signal<Blog[]>([]);
   private blogDetail = signal<BlogDetail | undefined>(undefined);
+  private blogVoteDetail = signal<BlogVoteDetail | undefined>(undefined);
   private categories = signal<Category[]>([]);
   private destroyRef = inject(DestroyRef);
   private apiUrl = environment.apiUrl;
@@ -24,6 +27,7 @@ export class BlogApiService {
   user = signal<User>(this.userApiService.currentUser()!);
   loadedBlogs = this.blogs.asReadonly();
   loadedBlogDetail = this.blogDetail.asReadonly();
+  loadedBlogVoteDetail = this.blogVoteDetail.asReadonly();
   loadedCategories = this.categories.asReadonly();
   loadedAuthors = computed(
     () => this.userApiService.loadedUsers(),
@@ -101,13 +105,40 @@ export class BlogApiService {
           tap({
             next: ([blog, comments]) => {
               this.blogDetail.set({ ...blog, comments: comments });
-              console.log(this.blogDetail());
+              // console.log(this.blogDetail());
             },
           }),
         )
         .pipe(
           catchError((error) => {
             console.log(error);
+            return throwError(() => new Error(errMessage, error));
+          }),
+        );
+    }
+    return new Observable((observer) => {
+      observer.error(errMessage);
+    });
+  }
+
+  private fetchBlogVoteDetail(url: string, errMessage: string): Observable<any> {
+    const token = this.verifyToken();
+
+    if (token) {
+      return this.httpClient
+        .get<[BlogVoteDetail, Comment[]]>(url, {
+          headers: this.userApiService.buildHttpHeaders(token),
+        })
+        .pipe(
+          tap({
+            next: ([blogVoteDetail, comments]) => {
+              this.blogVoteDetail.set({ ...blogVoteDetail, comments: comments });
+              // console.log(this.blogVoteDetail());
+            },
+          }),
+        )
+        .pipe(
+          catchError((error) => {
             return throwError(() => new Error(errMessage, error));
           }),
         );
@@ -156,6 +187,13 @@ export class BlogApiService {
 
   loadCategories() {
     return this.fetchCategories(`${this.apiUrl}api/categories/`, 'Error loading categories');
+  }
+
+  loadBlogVoteDetail(blogId: number) {
+    return this.fetchBlogVoteDetail(
+      `${this.apiUrl}api/blog/${blogId}/vote/`,
+      'Error loading BlogVoteDetail',
+    );
   }
 
   postNewBlog(newBlog: NewBlogModel) {

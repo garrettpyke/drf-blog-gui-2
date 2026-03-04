@@ -51,6 +51,10 @@
   color: var(--mat-sys-on-tertiary);
 }
 
+#chip-selected {
+  background-color: yellow;
+}
+
 /* app-comment {
   display: flex;
   align-items: flex-end;

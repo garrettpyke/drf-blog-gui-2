@@ -61,8 +61,6 @@ export class Blogs {
     this.destroyRef.onDestroy(() => {
       routeSubscription.unsubscribe();
     });
-
-    console.log('sortedBlogs: ' + this.sortedBlogs());
   }
 
   getAuthorEmail(authorId: number): string {
@@ -77,7 +75,7 @@ export class Blogs {
   }
 
   onClickSort() {
-    console.log(this.sortedBlogs());
+    // console.log(this.sortedBlogs());
     this.blogs.set(this.sortedBlogs());
   }
 

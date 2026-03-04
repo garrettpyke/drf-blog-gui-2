@@ -19,6 +19,7 @@ import { Comment } from '../../comments/comment/comment';
 // import { type BlogDetail as BlogDetailModel } from '../../models/blog-detail.model';
 import { type Category } from '../../models/category.model';
 import { type User } from '../../models/user.model';
+import { type Vote } from '../../models/vote.model';
 import { BlogApiService } from '../../services/blog-api.service';
 
 @Component({
@@ -32,8 +33,10 @@ export class BlogDetail implements OnInit {
   private blogApiService = inject(BlogApiService);
   blogId = input.required<number>();
   commentsOrder = signal<'asc' | 'desc'>('desc'); // todo: route query param
-  blogDetail = computed(() => this.blogApiService.loadedBlogDetail());
-  comments = computed(() => this.blogDetail()?.comments ?? []);
+  // blogDetail = computed(() => this.blogApiService.loadedBlogDetail());
+  blogVoteDetail = computed(() => this.blogApiService.loadedBlogVoteDetail());
+  comments = computed(() => this.blogVoteDetail()?.comments ?? []);
+  votes = computed<Vote[] | []>(() => this.blogVoteDetail()?.votes ?? []);
   categories = signal<Category[]>(this.blogApiService.loadedCategories());
   users = computed<User[]>(() => this.blogApiService.loadedAuthors());
   user = computed<User>(() => this.blogApiService.user()!);
@@ -42,36 +45,48 @@ export class BlogDetail implements OnInit {
   blogAppearance: MatCardAppearance = 'raised';
   destroyRef = inject(DestroyRef);
 
-  constructor() {
-    console.log(this.categories());
-  }
-
   ngOnInit() {
     const subscription = this.blogApiService.loadBlogDetail(this.blogId()).subscribe({
-      error: (error: Error) => {
-        console.log(error);
+      error: (err: Error) => {
+        console.log(err);
       },
       complete: () => {
-        console.log('Blog detail loaded!');
-        // console.log('comments: ' + this.comments().length);
+        // console.log('Blog detail loaded!');
       },
     });
 
     this.destroyRef.onDestroy(() => {
       subscription.unsubscribe();
     });
+
+    const blogVoteDetailSubscription = this.blogApiService
+      .loadBlogVoteDetail(this.blogId())
+      .subscribe({
+        error: (err: Error) => {
+          console.log(err);
+        },
+        complete: () => {
+          console.log('BlogVote detail loaded');
+          console.log(this.blogApiService.loadedBlogVoteDetail());
+        },
+      });
+
+    this.destroyRef.onDestroy(() => {
+      blogVoteDetailSubscription.unsubscribe();
+    });
   }
 
   get title(): string {
-    return this.blogDetail()?.title || 'undefined title';
+    // return this.blogDetail()?.title || 'undefined title';
+    return this.blogVoteDetail()?.title || 'undefined title';
   }
 
-  content = computed<string>(() => this.blogDetail()?.content || 'undefined content');
+  content = computed<string>(() => this.blogVoteDetail()?.content || 'undefined content');
 
   categorySubject = computed<string>(() => {
     const cat = this.blogApiService
       .loadedCategories()
-      .find((cat) => cat.id === this.blogDetail()?.category);
+      .find((cat) => cat.id === this.blogVoteDetail()?.category);
     if (cat) {
       return cat.genre ? cat.subject + ' (' + cat.genre + ')' : cat.subject;
     }
@@ -79,7 +94,7 @@ export class BlogDetail implements OnInit {
   });
 
   get author(): User {
-    const author = this.users()?.find((user) => user.id === this.blogDetail()?.author);
+    const author = this.users()?.find((user) => user.id === this.blogVoteDetail()?.author);
     if (author) {
       return author;
     }
@@ -89,6 +104,19 @@ export class BlogDetail implements OnInit {
   authorInfo(authorId: number): string {
     const user = this.users()?.find((user) => user.id === authorId);
     return user ? user.email : 'unknown author';
+  }
+
+  get totalVotes(): number {
+    let total = 0;
+    this.votes().forEach((vote) => (total += vote.vote_type));
+    return total;
+  }
+
+  voteMap(): number[] {
+    let voteMap = [0, 0, 0, 0]; // todo: make object instead
+
+    this.votes().forEach((vote) => (voteMap[vote.vote_type] = 1));
+    return voteMap;
   }
 
   onClickDeleteBlog() {

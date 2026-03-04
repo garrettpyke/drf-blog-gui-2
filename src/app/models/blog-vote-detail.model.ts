@@ -1,13 +1,13 @@
 import { type Comment } from '../models/comment.model';
+import { type Vote } from '../models/vote.model';
 
-// todo: consider altering back end...comments currently come from server as separate array
-// same with BlogVoteDetail
-export interface BlogDetail {
+export interface BlogVoteDetail {
   id: number;
   title: string;
   content: string;
   category: number;
   author: number;
   updated_at: string;
+  votes: Vote[];
   comments?: Comment[];
 }
