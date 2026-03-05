@@ -78,18 +78,4 @@ export class Blogs {
     // console.log(this.sortedBlogs());
     this.blogs.set(this.sortedBlogs());
   }
-
-  // onClickBlog(blogId: number) {
-  // const subscription = this.blogApiService.loadBlogDetail(blogId).subscribe({
-  //   error: (error: Error) => {
-  //     console.log(error);
-  //   },
-  //   complete: () => {
-  //     console.log('done');
-  //   },
-  // });
-  // this.destroyRef.onDestroy(() => {
-  //   subscription.unsubscribe();
-  // });
-  // }
 }

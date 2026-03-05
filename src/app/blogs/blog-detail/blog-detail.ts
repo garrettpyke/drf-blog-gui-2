@@ -1,13 +1,5 @@
-import {
-  Component,
-  OnInit,
-  DestroyRef,
-  input,
-  output,
-  signal,
-  computed,
-  inject,
-} from '@angular/core';
+import { Component, OnInit, DestroyRef, input, signal, computed, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
@@ -16,7 +8,7 @@ type MatCardAppearance = 'outlined' | 'raised' | 'filled';
 
 // import { UpdateBlog } from '../update-blog/update-blog';
 import { Comment } from '../../comments/comment/comment';
-// import { type BlogDetail as BlogDetailModel } from '../../models/blog-detail.model';
+import { type BlogVoteDetail } from '../../models/blog-vote-detail.model';
 import { type Category } from '../../models/category.model';
 import { type User } from '../../models/user.model';
 import { type Vote } from '../../models/vote.model';
@@ -34,49 +26,34 @@ export class BlogDetail implements OnInit {
   private blogApiService = inject(BlogApiService);
   blogId = input.required<number>();
   commentsOrder = signal<'asc' | 'desc'>('desc'); // todo: route query param
-  // blogDetail = computed(() => this.blogApiService.loadedBlogDetail());
-  blogVoteDetail = computed(() => this.blogApiService.loadedBlogVoteDetail());
+  blogVoteDetail = signal<BlogVoteDetail | undefined>(undefined);
   comments = computed(() => this.blogVoteDetail()?.comments ?? []);
   votes = computed<Vote[] | []>(() => this.blogVoteDetail()?.votes ?? []);
   categories = signal<Category[]>(this.blogApiService.loadedCategories());
   users = computed<User[]>(() => this.blogApiService.loadedAuthors());
   user = computed<User>(() => this.blogApiService.user()!);
-  deleteBlog = output<boolean>();
   updateBlog = false;
   blogAppearance: MatCardAppearance = 'raised';
   voteMap = { love: false, like: false, meh: false, downVote: false };
+  private router = inject(Router);
   destroyRef = inject(DestroyRef);
 
   ngOnInit() {
-    const subscription = this.blogApiService.loadBlogDetail(this.blogId()).subscribe({
+    const subscription = this.blogApiService.loadBlogVoteDetail(this.blogId()).subscribe({
       error: (err: Error) => {
         console.log(err);
       },
       complete: () => {
-        // console.log('Blog detail loaded!');
+        console.log(this.blogApiService.loadedBlogVoteDetail());
+        this.blogVoteDetail.set(this.blogApiService.loadedBlogVoteDetail());
+        console.log('BlogVote detail loaded');
+        this.setVoteMap();
+        console.log(this.voteMap);
       },
     });
 
     this.destroyRef.onDestroy(() => {
       subscription.unsubscribe();
-    });
-
-    const blogVoteDetailSubscription = this.blogApiService
-      .loadBlogVoteDetail(this.blogId())
-      .subscribe({
-        error: (err: Error) => {
-          console.log(err);
-        },
-        complete: () => {
-          console.log('BlogVote detail loaded');
-          console.log(this.blogApiService.loadedBlogVoteDetail());
-          this.setVoteMap();
-          console.log(this.voteMap);
-        },
-      });
-
-    this.destroyRef.onDestroy(() => {
-      blogVoteDetailSubscription.unsubscribe();
     });
   }
 
@@ -135,17 +112,28 @@ export class BlogDetail implements OnInit {
     // todo: Consider using a VoteMap array: voteMap[vote_type] could be easier to work with
   }
 
-  getchipAttrClass(voteType: number) {
-    return 0;
-  }
-
   onClickDeleteBlog(): void {
     console.log('Delete Blog clicked');
-    this.deleteBlog.emit(true);
+
+    const subscription = this.blogApiService.deleteBlog(this.blogId()).subscribe({
+      error: (err: Error) => {
+        console.log('Error deleting blog');
+        console.log(err);
+      },
+      complete: () => {
+        console.log(`Blog with ID ${this.blogId()} deleted successfully.`);
+        // this.router.navigate(['../']);
+        this.router.navigate(['//blog-app/blogs']);
+      },
+    });
+
+    this.destroyRef.onDestroy(() => {
+      subscription.unsubscribe();
+    });
   }
 
   onClickUpdateBlog() {
-    // console.log('Update Blog clicked');
+    console.log('Update Blog clicked');
     // if (!this.blogApiService.currentUser()) {
     //   console.log('Ya gotta be logged in to update a blog!');
     //   return;

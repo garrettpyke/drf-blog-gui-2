@@ -1,5 +1,5 @@
 import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpResponse, HttpStatusCode } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import { catchError, Observable, tap, map, throwError } from 'rxjs';
 
@@ -10,7 +10,6 @@ import { type Category } from '../models/category.model';
 import { type Comment } from '../models/comment.model';
 import { type User } from '../models/user.model';
 import { type NewBlogModel } from '../models/new-blog.model';
-import { type Vote } from '../models/vote.model';
 import { UserApiService } from './user-api.service';
 
 @Injectable({ providedIn: 'root' })
@@ -89,7 +88,7 @@ export class BlogApiService {
         );
     }
     return new Observable((observer) => {
-      observer.error(errMessage);
+      observer.error(errMessage + ' - verifyToken failed');
     });
   }
 
@@ -117,7 +116,7 @@ export class BlogApiService {
         );
     }
     return new Observable((observer) => {
-      observer.error(errMessage);
+      observer.error(errMessage + ' - verifyToken failed');
     });
   }
 
@@ -144,7 +143,7 @@ export class BlogApiService {
         );
     }
     return new Observable((observer) => {
-      observer.error(errMessage);
+      observer.error(errMessage + ' - verifyToken failed');
     });
   }
 
@@ -169,7 +168,7 @@ export class BlogApiService {
         );
     }
     return new Observable((observer) => {
-      observer.error('error fetching authors');
+      observer.error('error verifying token in fetchCategories method');
     });
   }
 
@@ -218,7 +217,97 @@ export class BlogApiService {
         );
     }
     return new Observable((observer) => {
-      observer.error('error posting new blog');
+      observer.error('error verifying token in postNewBlog method');
     });
   }
+
+  deleteBlog(blogId: number) {
+    const token = this.verifyToken();
+
+    if (token) {
+      let errorMsg = 'Unknown error occurred during blog deletion.';
+
+      return this.httpClient
+        .delete<HttpResponse<any>>(`${this.apiUrl}api/blog/${blogId}/`, {
+          headers: this.userApiService.buildHttpHeaders(token),
+          observe: 'response',
+        })
+        .pipe(
+          tap({
+            next: (response: HttpResponse<any>) => {
+              if (response.status === HttpStatusCode.NoContent) {
+                console.log(`Blog with ID ${blogId} deleted successfully on server.`);
+                this.blogs.update((blogs) => blogs.filter((blog) => blog.id !== blogId));
+              } else if (response.status === HttpStatusCode.Forbidden) {
+                errorMsg = 'You do not have permission to delete this blog.';
+                console.log(errorMsg);
+              } else {
+                errorMsg = `Unexpected response status: ${response.status}`;
+                console.error(errorMsg);
+              }
+            },
+          }),
+        )
+        .pipe(
+          catchError((err) => {
+            return throwError(() => new Error((err.message = errorMsg)));
+          }),
+        );
+    }
+    return new Observable((observer) => {
+      observer.error('error verifying token in deleteBlog method');
+    });
+  }
+
+  // todo: This can result in a 401 error or a new blog...
+  // todo: updateBlog(id: number, updatedFields: Partial<Blog>) - use Partial<> type in form & component?
+  // updateBlog(id: number, updatedBlog: Partial<Blog>) {
+  //   const tokenResponse = this.verifyToken();
+  //   if (typeof tokenResponse === 'string') {
+  //     let errorMsg = 'An error occurred during blog patch process!';
+  //     return this.httpClient
+  //       .patch<BlogDetail | HttpResponse<any>>(
+  //         `http://localhost:8000/api/blog/${id}/`,
+  //         updatedBlog,
+  //         {
+  //           headers: {
+  //             Authorization: `token ${tokenResponse}`,
+  //           },
+  //           observe: 'response',
+  //         },
+  //       )
+  //       .pipe(
+  //         map((response) => {
+  //           if (response instanceof HttpResponse) {
+  //             if (response.status === HttpStatusCode.Accepted) {
+  //               const updatedBlog = response.body as BlogDetail;
+  //               this.blogDetail.update(() => updatedBlog);
+  //               console.log('Blog updated successfully on server:', updatedBlog);
+  //             } else if (response.status === HttpStatusCode.Unauthorized) {
+  //               errorMsg = 'You are not authorized to update this blog.';
+  //               throw new Error(errorMsg);
+  //             } else {
+  //               errorMsg = `Unexpected response status: ${response.status}`;
+  //               throw new Error(errorMsg);
+  //             }
+  //           }
+  //           return updatedBlog;
+  //         }),
+  //       )
+  //       .pipe(
+  //         tap({
+  //           next: (updatedBlog) => {
+  //             console.log(`Blog updated successfully on server: ${updatedBlog}`);
+  //             this.fetchBlogs('http://localhost:8000/api/blogs/', 'Error loading blogs');
+  //           },
+  //         }),
+  //       )
+  //       .pipe(
+  //         catchError((error) => {
+  //           return throwError(() => new Error(error.message || errorMsg));
+  //         }),
+  //       );
+  //   }
+  //   return tokenResponse;
+  // }
 }
